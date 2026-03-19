@@ -1,0 +1,154 @@
+@model HostelManagement.Models.StudentViewModel
+
+@{
+    ViewData["Title"] = "New Admission";
+    Layout = null; 
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Admission | Hostel Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body { background-color: #f4f6f9; }
+        .sidebar { min-height: 100vh; background-color: #343a40; color: white; }
+        .sidebar a { color: #cfd8dc; text-decoration: none; padding: 15px; display: block; }
+        .sidebar a:hover, .sidebar a.active { background-color: #495057; color: white; border-left: 4px solid #0d6efd; }
+        .form-card { background: white; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); padding: 30px; max-width: 800px; }
+    </style>
+</head>
+<body>
+
+<div class="container-fluid">
+    <div class="row">
+        
+        <nav class="col-md-2 d-none d-md-block sidebar py-3">
+            <h4 class="text-center mb-4 text-white"><i class="fas fa-building"></i> Hostel Admin</h4>
+            <div class="list-group list-group-flush">
+                <a asp-controller="Admin" asp-action="Index"><i class="fas fa-tachometer-alt me-2"></i> Dashboard</a>
+                <a asp-controller="Admin" asp-action="RoomManagement"><i class="fas fa-bed me-2"></i> Room Management</a>
+                <a asp-controller="Admin" asp-action="NewAdmission" class="active"><i class="fas fa-user-plus me-2"></i> New Admission</a>
+                <a asp-controller="Admin" asp-action="ManageStudents"><i class="fas fa-users me-2"></i> Manage Students</a>
+                <a asp-controller="Admin" asp-action="RentAndPayments"><i class="fas fa-wallet me-2"></i> Rent & Payments</a>
+                <a asp-controller="Admin" asp-action="StaffAndSalaries"><i class="fas fa-id-badge me-2"></i> Staff & Salaries</a>
+                <a asp-controller="Account" asp-action="Logout" class="mt-5 text-danger"><i class="fas fa-sign-out-alt me-2"></i> Logout</a>
+            </div>
+        </nav>
+
+        <main class="col-md-10 ms-sm-auto px-md-4 pt-4">
+            
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-4 border-bottom">
+                <h1 class="h2">Student Admission Form</h1>
+            </div>
+
+            @if (ViewBag.Message != null)
+            {
+                var alertClass = ViewBag.Message.Contains("Error") || ViewBag.Message.Contains("failed") ? "alert-danger" : "alert-success";
+                <div class="alert @alertClass alert-dismissible fade show" role="alert">
+                    @ViewBag.Message
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+
+            <div class="form-card mb-5">
+                <form asp-controller="Admin" asp-action="NewAdmission" method="post">
+                    
+                    <h5 class="mb-4 text-primary border-bottom pb-2">Personal Details</h5>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Full Name <span class="text-danger">*</span></label>
+                            <input type="text" asp-for="Name" class="form-control" placeholder="Enter full name">
+                            <span asp-validation-for="Name" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Date of Birth <span class="text-danger">*</span></label>
+                            <input type="date" asp-for="DOB" class="form-control">
+                            <span asp-validation-for="DOB" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Email Address <span class="text-danger">*</span></label>
+                            <input type="email" asp-for="Email" class="form-control" placeholder="student@email.com">
+                            <span asp-validation-for="Email" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Mobile Number <span class="text-danger">*</span></label>
+                            <input type="text" asp-for="Mobile" class="form-control" placeholder="10-digit number">
+                            <span asp-validation-for="Mobile" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <h5 class="mb-4 mt-4 text-primary border-bottom pb-2">Room Allocation</h5>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Assign Room <span class="text-danger">*</span></label>
+                            <select asp-for="RoomId" class="form-select">
+                                <option value="">-- Select Available Room --</option>
+                                @if (ViewBag.AvailableRooms != null)
+                                {
+                                    foreach (var room in ViewBag.AvailableRooms)
+                                    {
+                                        <option value="@room.RoomId">Room @room.RoomNumber (@room.RoomType) - ₹@room.RentAmount</option>
+                                    }
+                                }
+                            </select>
+                            <span asp-validation-for="RoomId" class="text-danger small"></span>
+                            @if (ViewBag.AvailableRooms == null || ((List<HostelManagement.Models.RoomViewModel>)ViewBag.AvailableRooms).Count == 0)
+                            {
+                                <small class="text-danger mt-1 d-block"><i class="fas fa-exclamation-triangle"></i> No rooms available. Please add rooms or free up beds first.</small>
+                            }
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Joining Date <span class="text-danger">*</span></label>
+                            <input type="date" asp-for="JoiningDate" class="form-control">
+                            <span asp-validation-for="JoiningDate" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <h5 class="mb-4 mt-4 text-primary border-bottom pb-2">Stay Details & Payment</h5>
+<div class="row">
+    <div class="col-md-6 mb-3">
+        <label class="form-label">Stay Duration (in Months) <span class="text-danger">*</span></label>
+        <div class="input-group">
+            <input type="number" asp-for="StayDurationMonths" class="form-control" min="1" max="60" required placeholder="e.g., 6">
+            <span class="input-group-text">Months</span>
+        </div>
+        <span asp-validation-for="StayDurationMonths" class="text-danger small"></span>
+    </div>
+    
+    <div class="col-md-6 mb-3">
+        <label class="form-label">Initial Admission Payment (₹) <span class="text-danger">*</span></label>
+        <div class="input-group">
+            <span class="input-group-text">₹</span>
+            <input type="number" asp-for="InitialPayment" step="0.01" class="form-control" required placeholder="0.00">
+        </div>
+        <span asp-validation-for="InitialPayment" class="text-danger small"></span>
+        <small class="text-muted d-block mt-1">This will be added directly to their rent payment history.</small>
+    </div>
+</div>
+
+                    <div class="mt-4 text-end">
+                        <button type="reset" class="btn btn-secondary me-2">Clear Form</button>
+                        <button type="submit" class="btn btn-primary"><i class="fas fa-check-circle me-1"></i> Confirm Admission</button>
+                    </div>
+
+                </form>
+            </div>
+
+        </main>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.3/jquery.validate.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/3.2.12/jquery.validate.unobtrusive.min.js"></script>
+
+</body>
+</html>
